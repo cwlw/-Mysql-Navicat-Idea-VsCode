@@ -2,6 +2,63 @@
 ## 开发技术与工具
 MySQL + Navicat + IDEA + VSCode
 
+# 图书管理系统后端项目结构
+## 一、项目启动类
+`LibraryApplication`：SpringBoot项目启动入口
+
+## 二、核心包分层（根包：com.library）
+### 1. config 配置层
+存放项目配置类
+- `CorsConfig`：跨域请求配置
+
+### 2. controller 控制层
+接口请求入口，接收前端请求，统一返回 Result 格式数据
+- 账号权限相关：AdminController、LoginController、AuthSimpleController、RoleController
+- 学生管理：StudentController
+- 图书管理：BookController、BookcopyController、BooktypeController
+- 借阅记录：BorrowrecController
+- 借书证业务：LibcardController、CardOperateController、CardrecController
+- 公告模块：NoticeController
+- 操作日志：OperationlogController
+- 缴费&借阅规则：PayrecController、RuleconfigController
+- 个人信息：SimpleProfileController
+
+### 3. dto 入参实体
+接收前端提交的业务请求参数（借书证相关操作）
+- CardApplyDTO：办卡入参
+- CardCancelDTO：销卡入参
+- CardLossDTO：挂失入参
+- CardReissueDTO：补卡入参
+
+### 4. entity 数据库实体
+与数据库表一一映射
+Admin、Student、Book、Bookcopy、Booktype、Borrowrec、Libcard、Cardrec、Notice、Operationlog、Payrec、Role、Ruleconfig
+
+### 5. mapper 持久层
+Mybatis数据库操作接口，每张实体对应一个Mapper
+AdminMapper、StudentMapper、BookMapper、BookcopyMapper、BooktypeMapper、BorrowrecMapper、LibcardMapper、CardrecMapper、NoticeMapper、OperationlogMapper、PayrecMapper、RoleMapper、RuleconfigMapper
+
+### 6. service 业务逻辑层
+#### 顶层业务接口
+AdminService、StudentService、BookService、BookcopyService、BooktypeService、BorrowrecService、LibcardService、CardOperateService、CardrecService、NoticeService、OperationlogService、PayrecService、RoleService、RuleconfigService
+
+#### impl 接口实现类
+实现对应业务接口，编写核心业务逻辑
+- StudentServiceImpl
+- LibcardServiceImpl
+- CardOperateServiceImpl
+
+### 7. util 工具类包
+- Result：全局统一返回结果封装类
+- LoginInterceptor：登录拦截器，校验请求登录状态
+
+### 8. vo 出参视图实体
+封装返回给前端的页面展示数据
+- BorrowVo：借阅信息返回对象
+- FineVo：罚款缴费信息返回对象
+- BookBorrowVo：图书借阅组合出参对象，整合图书基础信息与借阅关联数据，用于图书借阅详情页面展示
+- BorrowCheckVo：借书规则校验出参对象，封装借书资格校验结果、限制条件与提示信息
+
 ## 数据库表总览
 项目共13张业务数据表，完整支撑图书馆借阅、学生、管理员、罚款、公告、日志等全业务流程，使用Navicat可视化管理MySQL数据库。
 
@@ -141,62 +198,6 @@ MySQL + Navicat + IDEA + VSCode
 | originPlace | 籍贯 |
 | cardStatus | 借阅卡状态 |
 | times | 剩余可借阅次数 |
-
-
-# 图书管理系统后端项目结构
-## 一、项目启动类
-`LibraryApplication`：SpringBoot项目启动入口
-
-## 二、核心包分层（根包：com.library）
-### 1. config 配置层
-存放项目配置类
-- `CorsConfig`：跨域请求配置
-
-### 2. controller 控制层
-接口请求入口，接收前端请求，统一返回 Result 格式数据
-- 账号权限相关：AdminController、LoginController、AuthSimpleController、RoleController
-- 学生管理：StudentController
-- 图书管理：BookController、BookcopyController、BooktypeController
-- 借阅记录：BorrowrecController
-- 借书证业务：LibcardController、CardOperateController、CardrecController
-- 公告模块：NoticeController
-- 操作日志：OperationlogController
-- 缴费&借阅规则：PayrecController、RuleconfigController
-- 个人信息：SimpleProfileController
-
-### 3. dto 入参实体
-接收前端提交的业务请求参数（借书证相关操作）
-- CardApplyDTO：办卡入参
-- CardCancelDTO：销卡入参
-- CardLossDTO：挂失入参
-- CardReissueDTO：补卡入参
-
-### 4. entity 数据库实体
-与数据库表一一映射
-Admin、Student、Book、Bookcopy、Booktype、Borrowrec、Libcard、Cardrec、Notice、Operationlog、Payrec、Role、Ruleconfig
-
-### 5. mapper 持久层
-Mybatis数据库操作接口，每张实体对应一个Mapper
-AdminMapper、StudentMapper、BookMapper、BookcopyMapper、BooktypeMapper、BorrowrecMapper、LibcardMapper、CardrecMapper、NoticeMapper、OperationlogMapper、PayrecMapper、RoleMapper、RuleconfigMapper
-
-### 6. service 业务逻辑层
-#### 顶层业务接口
-AdminService、StudentService、BookService、BookcopyService、BooktypeService、BorrowrecService、LibcardService、CardOperateService、CardrecService、NoticeService、OperationlogService、PayrecService、RoleService、RuleconfigService
-
-#### impl 接口实现类
-实现对应业务接口，编写核心业务逻辑
-- StudentServiceImpl
-- LibcardServiceImpl
-- CardOperateServiceImpl
-
-### 7. util 工具类包
-- Result：全局统一返回结果封装类
-- LoginInterceptor：登录拦截器，校验请求登录状态
-
-### 8. vo 出参视图实体
-封装返回给前端的页面展示数据
-- BorrowVo：借阅信息返回对象
-- FineVo：罚款缴费信息返回对象
 ## 工具分工说明
 - MySQL：数据库底层存储，维护数据表、业务关联关系
 - Navicat：数据库可视化工具，用于建表、SQL调试、数据管理
