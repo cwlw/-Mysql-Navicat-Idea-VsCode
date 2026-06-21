@@ -5,7 +5,7 @@
       <h2 class="title">图书馆管理系统</h2>
       <el-form ref="loginRef" :model="loginForm" label-width="70px">
         <el-form-item label="账号" prop="username">
-          <el-input v-model="loginForm.username" placeholder="请输入账号"></el-input>
+          <el-input v-model="loginForm.username" placeholder="管理员账号/学生学号"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="loginForm.password" type="password" placeholder="请输入密码"></el-input>
@@ -22,7 +22,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import api from '../api/index.js'
+import { authApi } from '../api/index.js'
 
 const router = useRouter()
 const loginRef = ref(null)
@@ -40,27 +40,30 @@ const handleLogin = async () => {
     return ElMessage.warning('账号和密码不能为空')
   }
 
-  console.log('1. 准备发起请求，地址是：', api.defaults.baseURL + '/login')
-  console.log('2. 请求参数：', { username, password })
-
   try {
-    const res = await api.post('/login', { username, password })
-    console.log('3. 拿到完整响应：', res)
+    // 后端接口参数为 username
+    const res = await authApi.login({
+      username: username,
+      password: password
+    })
+    console.log('登录返回数据：', res)
 
-    // 直接判断 res.code，不用 res.data
     if (res && res.code === 200) {
       ElMessage.success('登录成功')
-      localStorage.setItem('isLogin', 'true')
-      console.log('4. 已写入登录标识，准备跳转')
-      setTimeout(async () => {
-        await router.replace('/home')
-        console.log('5. 执行完跳转，当前路径：', router.currentRoute.value.path)
+      // 读取后端返回的真实身份
+      const userType = res.data.userType
+      localStorage.setItem('isLogin', '1')
+      localStorage.setItem('userType', userType)
+      localStorage.setItem('loginUserInfo', JSON.stringify(res.data.userInfo))
+      
+      setTimeout(() => {
+        router.replace('/home')
       }, 200)
     } else {
-      ElMessage.error(res?.msg || '登录失败')
+      ElMessage.error(res?.msg || '账号或密码错误')
     }
   } catch (err) {
-    console.error('❌ 请求异常，完整错误信息：', err)
+    console.error('登录请求异常：', err)
     ElMessage.error('服务器连接失败，请检查后端是否启动')
   }
 }

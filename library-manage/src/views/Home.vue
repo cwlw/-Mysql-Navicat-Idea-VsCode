@@ -24,7 +24,6 @@
           :key="item.ISBN"
           @click="$router.push({path:'/bookDetail', query:{isbn: item.ISBN}})"
         >
-          <!-- 图书封面：根据ISBN动态拼接图片路径 + 加载失败兜底（此处已修改） -->
           <div class="book-cover">
             <img
               :src="`/book_cover/${item.ISBN}.png`"
@@ -34,7 +33,6 @@
             />
           </div>
 
-          <!-- 图书核心信息 -->
           <div class="book-info">
             <p class="book-title">
               <span>[图书]</span> {{ item.bname }}
@@ -45,7 +43,6 @@
             <p class="desc">内容与摘要附注：{{ item.introduction || '无内容简介' }}</p>
           </div>
 
-          <!-- 馆藏数量标签 -->
           <div class="book-status">
             <el-tag type="info">
               纸本({{ item.totalNum }}) / 可借({{ item.availableNum }})
@@ -53,13 +50,11 @@
           </div>
         </div>
       </div>
-      <!-- 无数据空状态 -->
       <el-empty v-if="searchResultList.length === 0" description="未查询到匹配的图书"></el-empty>
     </div>
 
-    <!-- 三大榜单区域 -->
+    <!-- 三大榜单区域：游客/登录用户都展示数据 -->
     <div v-else class="rank-wrap">
-      <!-- 热书推荐 标题带查看全部 默认排序 -->
       <el-card class="rank-card">
         <template #header>
           <div class="card-header">
@@ -70,7 +65,6 @@
         <CommonTable :columns="hotBookColumns" :data="hotBooks" />
       </el-card>
 
-      <!-- 借书明星 按借阅次数排序 -->
       <el-card class="rank-card">
         <template #header>
           <div class="card-header">
@@ -81,7 +75,6 @@
         <CommonTable :columns="authorRankColumns" :data="authorRankList" />
       </el-card>
 
-      <!-- 新书速递 按出版时间由近到远 -->
       <el-card class="rank-card">
         <template #header>
           <div class="card-header">
@@ -96,43 +89,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import CommonTable from '../components/CommonTable.vue'
 import { bookApi, bookcopyApi, borrowrecApi } from '../api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
 const keyword = ref('')
 
-// 页面渲染数据
+// 判断是否游客页面
+const isVisitor = computed(() => route.path === '/visitor')
+
+const userType = localStorage.getItem('userType')
+const isAdmin = computed(() => userType === 'admin')
+
 const hotBooks = ref([])
 const authorRankList = ref([])
 const newBooks = ref([])
 const searchResultList = ref([])
 
-// 原始数据源
 const allBook = ref([])
 const allBookCopy = ref([])
 const allBorrow = ref([])
 const bookBorrowMap = ref({})
-
-// 【核心映射】ISBN -> 总副本数、可借数量
 const bookStockMap = ref({})
 
-// 日期格式化：清除 T 及时分秒
 const formatPubDate = (val) => {
   if (!val) return ''
   return val.split('T')[0]
 }
 
-// 图片加载失败处理：替换为暂无封面
 const handleImgError = (e) => {
   e.target.style.display = 'none'
   e.target.parentElement.innerHTML = '<div class="no-cover">暂无封面</div>'
 }
 
-// 表格列配置
 const hotBookColumns = [
   { prop: 'bname', label: '书名' },
   { prop: 'author', label: '作者' }
@@ -147,7 +140,7 @@ const newBookColumns = [
   { prop: 'pubDate', label: '出版时间' }
 ]
 
-// 加载所有基础数据 + 统计馆藏数量
+// 移除游客拦截，所有访问首页/游客页都加载数据
 const loadAllData = async () => {
   try {
     const [bookRes, copyRes, borrowRes] = await Promise.all([
@@ -156,7 +149,6 @@ const loadAllData = async () => {
       borrowrecApi.list()
     ])
 
-    // 处理图书数据：格式化日期
     let rawBooks = bookRes.code === 200 ? bookRes.data || [] : []
     allBook.value = rawBooks.map(book => ({
       ...book,
@@ -166,22 +158,17 @@ const loadAllData = async () => {
     allBookCopy.value = copyRes.code === 200 ? copyRes.data || [] : []
     allBorrow.value = borrowRes.code === 200 ? borrowRes.data || [] : []
 
-    // 统计馆藏：总副本数、可借数量
     calcBookStock()
-
-    // 统计借阅排行数据
     calcRankData()
   } catch (err) {
     ElMessage.error('页面数据加载失败，请检查后端服务')
     console.error('加载异常：', err)
-    // 异常清空列表，避免脏数据残留
     hotBooks.value = []
     authorRankList.value = []
     newBooks.value = []
   }
 }
 
-// 统计每本图书的 总副本数、可借数量
 const calcBookStock = () => {
   const stock = {}
   allBookCopy.value.forEach(copy => {
@@ -197,7 +184,6 @@ const calcBookStock = () => {
   bookStockMap.value = stock
 }
 
-// 统计借阅排行（热书、作者、新书）
 const calcRankData = () => {
   const barCodeToIsbn = {}
   allBookCopy.value.forEach(item => {
@@ -232,9 +218,12 @@ const calcRankData = () => {
   newBooks.value = [...allBook.value]
     .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
     .slice(0, 5)
+
+  console.log("条码映射barCodeToIsbn：", barCodeToIsbn)
+  console.log("每本书借阅次数bookBorrowMap：", bookBorrowMap.value)
+  console.log("最终借书明星列表authorRankList：", authorRankList.value)
 }
 
-// 检索逻辑（增加字段空值判断，防止报错）
 const handleSearch = () => {
   const key = keyword.value.trim()
   searchResultList.value = []
@@ -254,13 +243,11 @@ const handleSearch = () => {
   })
 }
 
-// 重置检索
 const resetSearch = () => {
   keyword.value = ''
   searchResultList.value = []
 }
 
-// 跳转登录（预留方法）
 const toLogin = () => {
   router.push('/login')
 }
@@ -274,7 +261,6 @@ onMounted(() => loadAllData())
   box-sizing: border-box;
 }
 
-/* 检索卡片 */
 .search-card {
   margin-bottom: 12px;
 }
@@ -283,7 +269,6 @@ onMounted(() => loadAllData())
   min-height: unset !important;
 }
 
-/* 卡片标题布局：文字左 查看全部右 */
 :deep(.card-header) {
   display: flex;
   justify-content: space-between;
@@ -291,7 +276,6 @@ onMounted(() => loadAllData())
   width: 100%;
 }
 
-/* 检索结果区域 */
 .search-result-wrap {
   width: 100%;
 }
@@ -315,7 +299,6 @@ onMounted(() => loadAllData())
   align-items: flex-start;
 }
 
-/* 图书封面 */
 .book-cover {
   width: 100px;
   height: 140px;
@@ -362,7 +345,6 @@ onMounted(() => loadAllData())
   margin-top: 4px;
 }
 
-/* 三栏榜单布局 */
 .rank-wrap {
   display: flex;
   gap: 20px;
