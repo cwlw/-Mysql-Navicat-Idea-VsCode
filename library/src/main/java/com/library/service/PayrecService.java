@@ -1,16 +1,18 @@
 package com.library.service;
 import com.library.entity.Payrec;
-import com.library.mapper.PayrecMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.library.vo.FineVo;
+import java.math.BigDecimal;
 import java.util.List;
 
-@Service
-public class PayrecService {
-    @Autowired PayrecMapper m;
-    public List<Payrec> listAll(){return m.listAll();}
-    public Payrec getById(Integer id){return m.getById(id);}
-    public boolean add(Payrec p){return m.insert(p)>0;}
-    public boolean update(Payrec p){return m.update(p)>0;}
-    public boolean delete(Integer id){return m.delete(id)>0;}
+public interface PayrecService {
+    // CRUD
+    Payrec getById(Integer id);
+    void add(Payrec payrec);
+    void update(Payrec payrec);
+
+    // 批量缴费
+    boolean batchPayFine(String sno, List<Integer> ids, String serNum, BigDecimal payAmount, String payDateStr) throws Exception;
+    // 分页缴费记录
+    List<FineVo> getPayRecordBySno(String sno, Integer page, Integer size);
+    int getPayTotalCount(String sno);
 }

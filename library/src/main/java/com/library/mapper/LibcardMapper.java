@@ -12,8 +12,9 @@ public interface LibcardMapper {
     @Select("select * from libcard")
     List<Libcard> listAll();
 
+    // 原getById改名为getByCardNo，适配借书校验逻辑
     @Select("select * from libcard where cardNo = #{cardNo}")
-    Libcard getById(@Param("cardNo") String cardNo);
+    Libcard getByCardNo(@Param("cardNo") String cardNo);
 
     @Insert("INSERT INTO libcard(cardNo,sno,sname,type,collage,major,birth,originPlace,cardStatus,times) " +
             "VALUES(#{cardNo},#{sno},#{sname},#{type},#{collage},#{major},#{birth},#{originPlace},#{cardStatus},#{times})")

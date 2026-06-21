@@ -42,13 +42,13 @@ public class CardOperateServiceImpl implements CardOperateService {
         return 1;
     }
 
-    // 操作编码：1新办 2挂失 3补办 4注销
+    // 操作编码：1新办/补办(正常) 2挂失 3注销
     private Integer getCode(String op) {
         return switch (op) {
             case "apply" -> 1;
             case "loss" -> 2;
-            case "reissue" -> 3;
-            case "cancel" -> 4;
+            case "reissue" -> 1;
+            case "cancel" -> 3;
             default -> 0;
         };
     }
@@ -114,12 +114,12 @@ public class CardOperateServiceImpl implements CardOperateService {
     @Override
     @Transactional
     public Result lossCard(String sno, String cardNo) {
-        Libcard libcard = libcardMapper.getById(cardNo);
+        Libcard libcard = libcardMapper.getByCardNo(cardNo);
         if (libcard == null) return Result.fail("未查询到该借阅卡");
-        // 统一转字符串对比，解决前端字符串、后端数字不匹配
-        String status = String.valueOf(libcard.getCardStatus());
-        if ("2".equals(status)) return Result.fail("该卡片已挂失，无需重复操作");
-        if ("4".equals(status)) return Result.fail("已注销卡片无法挂失");
+        Integer status = libcard.getCardStatus();
+        // 修复：变量在前，消除浮点报错
+        if (status.equals(2)) return Result.fail("该卡片已挂失，无需重复操作");
+        if (status.equals(3)) return Result.fail("已注销卡片无法挂失");
 
         libcard.setCardStatus(getCode("loss"));
         libcardMapper.update(libcard);
@@ -148,15 +148,15 @@ public class CardOperateServiceImpl implements CardOperateService {
         return Result.success(null);
     }
 
-    /** 补办借阅卡（重点修复状态判断） */
+    /** 补办借阅卡 */
     @Override
     @Transactional
     public Result reissueCard(String sno, String originCardNo, String newCardNo) {
-        Libcard oldCard = libcardMapper.getById(originCardNo);
+        Libcard oldCard = libcardMapper.getByCardNo(originCardNo);
         if (oldCard == null) return Result.fail("原借阅卡不存在");
-        // 核心修复：数字转字符串，和前端"2"匹配
-        String status = String.valueOf(oldCard.getCardStatus());
-        if (!"2".equals(status)) {
+        Integer status = oldCard.getCardStatus();
+        // 修复写法
+        if (!status.equals(2)) {
             return Result.fail("仅挂失状态卡片支持补办");
         }
 
@@ -202,10 +202,11 @@ public class CardOperateServiceImpl implements CardOperateService {
     @Override
     @Transactional
     public Result cancelCard(String sno, String cardNo) {
-        Libcard libcard = libcardMapper.getById(cardNo);
+        Libcard libcard = libcardMapper.getByCardNo(cardNo);
         if (libcard == null) return Result.fail("未查询到该借阅卡");
-        String status = String.valueOf(libcard.getCardStatus());
-        if ("4".equals(status)) return Result.fail("卡片已注销，不可重复操作");
+        Integer status = libcard.getCardStatus();
+        // 修复写法
+        if (status.equals(3)) return Result.fail("卡片已注销，不可重复操作");
 
         libcard.setCardStatus(getCode("cancel"));
         libcardMapper.update(libcard);

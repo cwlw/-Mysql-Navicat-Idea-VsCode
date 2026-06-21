@@ -1,0 +1,12 @@
+@startuml
+class com.library.controller.BookController {
+- BookService bookService
++ Map<String,Object> list()
++ Map<String,Object> get(Integer)
++ Map<String,Object> add(Book)
++ Map<String,Object> update(Book)
++ Map<String,Object> delete(Integer)
+}
+
+
+@enduml

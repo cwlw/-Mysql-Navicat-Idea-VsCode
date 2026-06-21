@@ -1,0 +1,12 @@
+@startuml
+class com.library.service.BookService {
+~ BookMapper m
++ List<Book> listAll()
++ Book getById(Integer)
++ boolean add(Book)
++ boolean update(Book)
++ boolean delete(Integer)
+}
+
+
+@enduml

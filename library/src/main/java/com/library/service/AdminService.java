@@ -15,4 +15,13 @@ public class AdminService {
         return adminMapper.login(username, password);
     }
 
+    // 根据id查询管理员
+    public Admin getById(Integer id) {
+        return adminMapper.selectById(id);
+    }
+
+    // 新增：修改管理员密码
+    public int updatePwd(Integer id, String newPwd){
+        return adminMapper.updatePwd(id, newPwd);
+    }
 }

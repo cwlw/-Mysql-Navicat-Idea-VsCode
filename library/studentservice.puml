@@ -1,0 +1,12 @@
+@startuml
+interface com.library.service.StudentService {
+~ List<Student> listAll()
+~ Student getById(Integer)
+~ Result add(Student)
+~ Result update(Student)
+~ Result delete(Integer)
+~ Result getStudentWithCard(String)
+~ Student getStudentBySno(String)
+}
+
+@enduml

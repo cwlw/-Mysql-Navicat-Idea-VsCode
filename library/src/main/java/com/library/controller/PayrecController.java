@@ -1,82 +1,46 @@
 package com.library.controller;
 import com.library.entity.Payrec;
 import com.library.service.PayrecService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.library.util.Result;
+import com.library.vo.FineVo;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/payrec")
+@RequestMapping("/api/pay")
 public class PayrecController {
-    @Autowired
+    @Resource
     private PayrecService payrecService;
 
-    @GetMapping("/list")
-    public Map<String, Object> list(){
-        Map<String, Object> result = new HashMap<>();
-        List<Payrec> list = payrecService.listAll();
-        result.put("code", 200);
-        result.put("msg", "查询成功");
-        result.put("data", list);
-        return result;
-    }
-
-    @GetMapping("/get/{id}")
-    public Map<String, Object> get(@PathVariable Integer id){
-        Map<String, Object> result = new HashMap<>();
-        Payrec payrec = payrecService.getById(id);
-        if (payrec != null) {
-            result.put("code", 200);
-            result.put("msg", "查询成功");
-            result.put("data", payrec);
-        } else {
-            result.put("code", 500);
-            result.put("msg", "未找到数据");
-        }
-        return result;
-    }
-
+    // 新增缴费记录 20行修复void赋值
     @PostMapping("/add")
-    public Map<String, Object> add(@RequestBody Payrec payrec){
-        Map<String, Object> result = new HashMap<>();
-        boolean flag = payrecService.add(payrec);
-        if (flag) {
-            result.put("code", 200);
-            result.put("msg", "新增成功");
-        } else {
-            result.put("code", 500);
-            result.put("msg", "新增失败");
-        }
-        return result;
+    public Result<String> addPay(@RequestBody Payrec payrec) {
+        payrecService.add(payrec);
+        return Result.success("新增缴费记录成功");
     }
 
-    @PostMapping("/update")
-    public Map<String, Object> update(@RequestBody Payrec payrec){
-        Map<String, Object> result = new HashMap<>();
-        boolean flag = payrecService.update(payrec);
-        if (flag) {
-            result.put("code", 200);
-            result.put("msg", "修改成功");
-        } else {
-            result.put("code", 500);
-            result.put("msg", "修改失败");
-        }
-        return result;
+    // 根据id查询 45行找不到符号修复
+    @GetMapping("/{id}")
+    public Result<Payrec> getById(@PathVariable Integer id) {
+        Payrec payrec = payrecService.getById(id);
+        return Result.success(payrec);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Integer id){
-        Map<String, Object> result = new HashMap<>();
-        boolean flag = payrecService.delete(id);
-        if (flag) {
-            result.put("code", 200);
-            result.put("msg", "删除成功");
-        } else {
-            result.put("code", 500);
-            result.put("msg", "删除失败");
-        }
-        return result;
+    // 修改缴费记录 59行void赋值修复
+    @PutMapping("/update")
+    public Result<String> updatePay(@RequestBody Payrec payrec) {
+        payrecService.update(payrec);
+        return Result.success("修改成功");
+    }
+
+    // 分页查询缴费记录 73行
+    @GetMapping("/list")
+    public Result<List<FineVo>> payList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam String sno) {
+        List<FineVo> list = payrecService.getPayRecordBySno(sno, page, size);
+        return Result.success(list);
     }
 }

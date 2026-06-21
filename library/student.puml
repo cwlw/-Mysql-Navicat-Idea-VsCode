@@ -1,0 +1,36 @@
+@startuml
+class com.library.entity.Student {
+- Integer id
+- String sno
+- String username
+- Integer type
+- String collage
+- String major
+- Date birth
+- String originPlace
+- String password
+- String cardNo
++ String getCardNo()
++ void setCardNo(String)
++ Integer getId()
++ void setId(Integer)
++ String getSno()
++ void setSno(String)
++ String getUsername()
++ void setUsername(String)
++ Integer getType()
++ void setType(Integer)
++ String getCollage()
++ void setCollage(String)
++ String getMajor()
++ void setMajor(String)
++ Date getBirth()
++ void setBirth(Date)
++ String getOriginPlace()
++ void setOriginPlace(String)
++ String getPassword()
++ void setPassword(String)
+}
+
+
+@enduml

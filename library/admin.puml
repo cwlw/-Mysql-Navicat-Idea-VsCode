@@ -1,0 +1,21 @@
+@startuml
+class com.library.entity.Admin {
+- Integer id
+- String username
+- String password
+- String name
+- String tel
++ Integer getId()
++ void setId(Integer)
++ String getUsername()
++ void setUsername(String)
++ String getPassword()
++ void setPassword(String)
++ String getName()
++ void setName(String)
++ String getTel()
++ void setTel(String)
+}
+
+
+@enduml

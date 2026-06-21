@@ -9,6 +9,15 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
-  mapper-locations: classpath:mapper/*.xml
+  # 修正扫描路径，匹配java下打包后的mapper目录
+  mapper-locations: classpath:com/library/mapper/*.xml
   configuration:
-    map-underscore-to-camel-case: false
+    # 下划线自动转驼峰（book_status → bookStatus）
+    map-underscore-to-camel-case: true
+
+# PageHelper分页插件配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql

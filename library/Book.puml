@@ -1,0 +1,33 @@
+@startuml
+class com.library.entity.Book {
+- Integer id
+- String ISBN
+- String bname
+- String author
+- String publisher
+- String introduction
+- Date pubDate
+- String clcNum
+- Integer bookStatus
++ Integer getId()
++ void setId(Integer)
++ String getISBN()
++ void setISBN(String)
++ String getBname()
++ void setBname(String)
++ String getAuthor()
++ void setAuthor(String)
++ String getPublisher()
++ void setPublisher(String)
++ String getIntroduction()
++ void setIntroduction(String)
++ Date getPubDate()
++ void setPubDate(Date)
++ String getClcNum()
++ void setClcNum(String)
++ Integer getBookStatus()
++ void setBookStatus(Integer)
+}
+
+
+@enduml

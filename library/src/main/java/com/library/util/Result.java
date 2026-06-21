@@ -21,6 +21,15 @@ public class Result<T> {
         return result;
     }
 
+    // 新增：未登录返回
+    public static <T> Result<T> unLogin() {
+        Result<T> result = new Result<>();
+        result.setCode(401);
+        result.setMsg("请先登录账号");
+        result.setData(null);
+        return result;
+    }
+
     // getter setter
     public Integer getCode() { return code; }
     public void setCode(Integer code) { this.code = code; }

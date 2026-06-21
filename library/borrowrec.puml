@@ -1,0 +1,42 @@
+@startuml
+class com.library.entity.Borrowrec {
+- Integer id
+- String serNum
+- String sno
+- String barCode
+- Date borDate
+- Date retDate
+- Date realRetDate
+- Integer retStatus
+- Integer oddDays
+- BigDecimal fineMoney
+- Integer fineStatus
+- String paySerNum
++ Integer getId()
++ void setId(Integer)
++ String getSerNum()
++ void setSerNum(String)
++ String getSno()
++ void setSno(String)
++ String getBarCode()
++ void setBarCode(String)
++ Date getBorDate()
++ void setBorDate(Date)
++ Date getRetDate()
++ void setRetDate(Date)
++ Date getRealRetDate()
++ void setRealRetDate(Date)
++ Integer getRetStatus()
++ void setRetStatus(Integer)
++ Integer getOddDays()
++ void setOddDays(Integer)
++ BigDecimal getFineMoney()
++ void setFineMoney(BigDecimal)
++ Integer getFineStatus()
++ void setFineStatus(Integer)
++ String getPaySerNum()
++ void setPaySerNum(String)
+}
+
+
+@enduml

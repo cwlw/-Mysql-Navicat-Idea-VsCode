@@ -1,0 +1,13 @@
+@startuml
+class com.library.controller.StudentController {
+- StudentService studentService
++ List<Student> list()
++ Result getById(Integer)
++ Result add(Student)
++ Result update(Student)
++ Result delete(Integer)
++ Result getBySno(String)
+}
+
+
+@enduml

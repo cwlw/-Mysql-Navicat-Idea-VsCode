@@ -12,4 +12,7 @@ public interface LibcardService {
     Result delete(String cardNo);
     Result getCardBySno(String sno);
     String getMaxCardNo();
+
+    // 新增：根据学号直接返回Libcard实体（个人中心用）
+    Libcard getCardEntityBySno(String sno);
 }

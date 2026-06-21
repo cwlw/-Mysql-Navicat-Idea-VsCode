@@ -1,13 +1,16 @@
-package com.library.entity;
+package com.library.dto;
 
-public class Bookcopy {
-    // 图书条码（主键）
+/**
+ * 图书副本返回DTO，编辑页面展示该书所有副本
+ */
+public class BookCopyDTO {
+    // 副本条码主键
     private String barCode;
     // 关联图书ISBN
     private String ISBN;
     // 馆藏存放位置
     private String place;
-    // 当前副本状态
+    // 当前副本状态 0正常 1下架 2注销
     private Integer status;
     // 副本历史状态
     private Integer oldStatus;
@@ -15,21 +18,6 @@ public class Bookcopy {
     private String location;
     // 当前所在地
     private String nowLocation;
-
-    // 无参构造
-    public Bookcopy() {
-    }
-
-    // 全参构造
-    public Bookcopy(String barCode, String ISBN, String place, Integer status, Integer oldStatus, String location, String nowLocation) {
-        this.barCode = barCode;
-        this.ISBN = ISBN;
-        this.place = place;
-        this.status = status;
-        this.oldStatus = oldStatus;
-        this.location = location;
-        this.nowLocation = nowLocation;
-    }
 
     public String getBarCode() {
         return barCode;
@@ -85,19 +73,5 @@ public class Bookcopy {
 
     public void setNowLocation(String nowLocation) {
         this.nowLocation = nowLocation;
-    }
-
-    // 新增toString
-    @Override
-    public String toString() {
-        return "Bookcopy{" +
-                "barCode='" + barCode + '\'' +
-                ", ISBN='" + ISBN + '\'' +
-                ", place='" + place + '\'' +
-                ", status=" + status +
-                ", oldStatus=" + oldStatus +
-                ", location='" + location + '\'' +
-                ", nowLocation='" + nowLocation + '\'' +
-                '}';
     }
 }

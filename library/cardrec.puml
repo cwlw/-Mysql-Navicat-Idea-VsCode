@@ -1,0 +1,27 @@
+@startuml
+class com.library.entity.Cardrec {
+- Integer id
+- String serNum
+- String sno
+- String originCardNo
+- String newCardNo
+- Integer opType
+- LocalDateTime opTime
++ Integer getId()
++ void setId(Integer)
++ String getSerNum()
++ void setSerNum(String)
++ String getSno()
++ void setSno(String)
++ String getOriginCardNo()
++ void setOriginCardNo(String)
++ String getNewCardNo()
++ void setNewCardNo(String)
++ Integer getOpType()
++ void setOpType(Integer)
++ LocalDateTime getOpTime()
++ void setOpTime(LocalDateTime)
+}
+
+
+@enduml

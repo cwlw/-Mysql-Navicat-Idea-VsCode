@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.library.mapper.BookMapper">
+    <resultMap id="BookDTOMap" type="com.library.dto.BookDTO">
+        <id column="id" property="id"/>
+        <result column="ISBN" property="ISBN"/>
+        <result column="bname" property="bname"/>
+        <result column="author" property="author"/>
+        <result column="publisher" property="publisher"/>
+        <result column="introduction" property="introduction"/>
+        <result column="pubDate" property="pubDate"/>
+        <result column="clcNum" property="clcNum"/>
+        <result column="bookStatus" property="bookStatus"/>
+        <result column="isDown" property="isDown"/>
+    </resultMap>
+
+    <select id="searchBookPage" resultMap="BookDTOMap">
+        SELECT DISTINCT b.*,
+        -- 数据库规则：3=下架，匹配状态判断
+        CASE WHEN bc.status = 3 OR b.bookStatus = 3 THEN 1 ELSE 0 END AS isDown
+        FROM book b
+        LEFT JOIN bookcopy bc ON b.ISBN = bc.ISBN
+        <where>
+            <if test="keyword != null and keyword != ''">
+                b.bname LIKE CONCAT('%',#{keyword},'%')
+                OR b.author LIKE CONCAT('%',#{keyword},'%')
+                OR bc.barCode = #{keyword}
+            </if>
+        </where>
+        ORDER BY b.id DESC
+    </select>
+</mapper>
