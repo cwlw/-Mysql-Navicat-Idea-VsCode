@@ -2,6 +2,99 @@
 ## 开发技术与工具
 MySQL + Navicat + IDEA + VSCode
 
+# 图书管理系统后端项目结构
+# 后端项目完整结构说明（更新版）
+## 一、项目启动类
+`LibraryApplication`：SpringBoot项目启动入口，项目主程序类
+
+## 二、核心包分层（根包：com.library）
+### 1. config 配置层
+存放项目全局配置类
+- `CorsConfig`：全局跨域请求配置，解决前后端跨域访问问题
+
+### 2. controller 控制层
+所有接口请求入口，接收前端HTTP请求，统一通过`util.Result`封装返回数据
+1. 账号权限登录相关
+    - AdminController：管理员管理接口
+    - LoginController：登录基础接口
+    - AuthSimpleController：简易权限认证接口
+    - RoleController：角色权限管理接口
+2. 学生业务管理
+    - StudentController：学生信息CRUD接口
+    - SimpleProfileController：学生个人信息中心接口
+3. 图书分类&馆藏管理
+    - BookController：图书书目基础信息接口
+    - BookcopyController：图书副本（馆藏实体）接口
+    - BooktypeController：图书分类类型接口
+    - CatalogueController：图书目录相关接口
+4. 借阅业务&记录
+    - BorrowrecController：图书借阅记录管理接口
+5. 借书证全生命周期业务
+    - LibcardController：借书证基础信息接口
+    - CardOperateController：借书证业务操作总入口（办卡/挂失/补卡/销卡）
+    - CardrecController：借书证操作流水记录接口
+6. 公告模块
+    - NoticeController：系统公告发布、查询接口
+7. 系统操作日志
+    - OperationlogController：用户操作日志记录、查询接口
+8. 缴费&借阅规则配置
+    - PayrecController：逾期罚款缴费记录接口
+    - RuleconfigController：图书馆借阅规则配置接口
+
+### 3. dto 入参实体包
+专门接收前端提交的新增、编辑、业务操作请求参数，用于接口入参绑定
+- BookDTO：图书书目新增/编辑入参
+- BookCopyDTO：图书副本新增/编辑入参
+- CardApplyDTO：办理借书证入参
+- CardCancelDTO：注销借书证入参
+- CardLossDTO：借书证挂失入参
+- CardReissueDTO：借书证补办入参
+- PasswordDTO：密码修改入参
+- StudentUpdateDTO：学生信息修改入参
+
+### 4. entity 数据库实体包
+与MySQL数据库表一一映射的持久化实体类，对应每张数据表
+Admin、Student、Book、Bookcopy、Booktype、Borrowrec、Libcard、Cardrec、Notice、Operationlog、Payrec、Role、Ruleconfig
+
+### 5. mapper 持久层（MyBatis）
+数据库操作接口层，每个实体对应1个Mapper接口，配套xml映射文件实现SQL
+- 接口文件（Mapper）：
+AdminMapper、StudentMapper、BookMapper、BookcopyMapper、BooktypeMapper、BorrowrecMapper、LibcardMapper、CardrecMapper、NoticeMapper、OperationlogMapper、PayrecMapper、RoleMapper、RuleconfigMapper
+- SQL映射文件：
+BookMapper.xml（图书自定义复杂查询SQL）
+
+### 6. service 业务逻辑层
+分为**顶层业务接口**与**impl接口实现类**，封装系统核心业务逻辑
+#### （1）顶层业务接口（service目录下）
+AdminService、StudentService、BookService、BookcopyService、BooktypeService、BorrowrecService、LibcardService、CardOperateService、CardrecService、NoticeService、OperationlogService、PayrecService、RoleService、RuleconfigService、SimpleProfileService
+
+#### （2）impl 接口实现子包（service.impl）
+实现对应Service接口，编写数据库交互、业务校验、事务逻辑
+- StudentServiceImpl：学生相关业务实现
+- LibcardServiceImpl：借书证基础信息业务实现
+- CardOperateServiceImpl：借书证操作（办卡/挂失/补卡/销卡）核心业务实现
+- BorrowrecServiceImpl：图书借阅、归还业务实现
+- PayrecServiceImpl：罚款缴费业务实现
+- SimpleProfileServiceImpl：学生个人中心业务实现
+
+### 7. util 工具类包
+存放全局通用工具、拦截器、统一返回封装
+- Result：全局统一返回结果封装类，标准化接口返回格式（状态码、提示信息、业务数据）
+- LoginInterceptor：登录拦截器，全局校验请求登录状态，未登录接口拦截
+
+### 8. vo 出参视图实体包
+封装后端查询完成后返回给前端的页面展示数据，用于多表关联、组合数据返回
+- BookQueryVO：图书列表分页查询返回视图
+- BookBorrowVo：图书借阅详情组合出参，整合图书基础信息+借阅关联数据，用于借阅详情页
+- BorrowCheckVo：借书资格校验出参，封装借书限制、校验结果、前端提示文案
+- BorrowVo：基础借阅记录列表返回对象
+- FineVo：逾期罚款缴费信息返回对象
+- StudentProfileVO：学生个人中心页面展示数据封装
+
+## 三、resources 资源目录
+1. static：静态资源存放目录（图片、静态文件等）
+2. templates：页面模板目录
+3. application.yml：SpringBoot全局配置文件（数据库、端口、MyBatis、跨域等配置）
 ## 数据库表总览
 项目共13张业务数据表，完整支撑图书馆借阅、学生、管理员、罚款、公告、日志等全业务流程，使用Navicat可视化管理MySQL数据库。
 
@@ -14,6 +107,7 @@ MySQL + Navicat + IDEA + VSCode
 | originCardNo | 原借阅卡号 |
 | newCardNo | 新借阅卡号 |
 | opType | 操作类型 |
+| opTime | 操作时间 |
 
 ### 2. ruleconfig 系统规则配置表
 | 字段名 | 说明 |
@@ -140,7 +234,6 @@ MySQL + Navicat + IDEA + VSCode
 | originPlace | 籍贯 |
 | cardStatus | 借阅卡状态 |
 | times | 剩余可借阅次数 |
-
 ## 工具分工说明
 - MySQL：数据库底层存储，维护数据表、业务关联关系
 - Navicat：数据库可视化工具，用于建表、SQL调试、数据管理
