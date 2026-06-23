@@ -1,102 +1,112 @@
-# 图书馆管理系统（前后端实现）
-## 开发技术与工具
-MySQL + Navicat + IDEA + VSCode
+# 图书管理系统后端项目结构说明书
+## 一、项目整体说明
+本项目基于 SpringBoot + MyBatis 开发图书管理后端系统，采用标准MVC分层架构，通过DTO入参、VO出参实现前后端数据解耦，封装统一返回结果与全局登录拦截，模块化程度高，结构清晰易维护。
 
-# 图书管理系统后端项目结构
-# 后端项目完整结构说明（更新版）
-## 一、项目启动类
-`LibraryApplication`：SpringBoot项目启动入口，项目主程序类
+## 二、项目启动类
+### `LibraryApplication`
+SpringBoot项目唯一启动入口主类，负责项目容器初始化、自动装配、服务启动加载，是整个后端服务运行入口。
 
-## 二、核心包分层（根包：com.library）
+## 三、核心包分层结构（根包：com.library）
 ### 1. config 配置层
-存放项目全局配置类
-- `CorsConfig`：全局跨域请求配置，解决前后端跨域访问问题
+存放项目全局框架配置类，仅做基础功能配置，无业务逻辑
+- `CorsConfig`：全局跨域请求配置类，配置允许访问域名、请求头、请求方式，解决前后端分离跨域问题
 
 ### 2. controller 控制层
-所有接口请求入口，接收前端HTTP请求，统一通过`util.Result`封装返回数据
-1. 账号权限登录相关
-    - AdminController：管理员管理接口
-    - LoginController：登录基础接口
-    - AuthSimpleController：简易权限认证接口
-    - RoleController：角色权限管理接口
-2. 学生业务管理
-    - StudentController：学生信息CRUD接口
-    - SimpleProfileController：学生个人信息中心接口
-3. 图书分类&馆藏管理
-    - BookController：图书书目基础信息接口
-    - BookcopyController：图书副本（馆藏实体）接口
-    - BooktypeController：图书分类类型接口
-    - CatalogueController：图书目录相关接口
-4. 借阅业务&记录
-    - BorrowrecController：图书借阅记录管理接口
-5. 借书证全生命周期业务
-    - LibcardController：借书证基础信息接口
-    - CardOperateController：借书证业务操作总入口（办卡/挂失/补卡/销卡）
-    - CardrecController：借书证操作流水记录接口
-6. 公告模块
-    - NoticeController：系统公告发布、查询接口
-7. 系统操作日志
-    - OperationlogController：用户操作日志记录、查询接口
-8. 缴费&借阅规则配置
-    - PayrecController：逾期罚款缴费记录接口
-    - RuleconfigController：图书馆借阅规则配置接口
+所有前端HTTP接口请求入口，仅接收参数、调用业务层、统一返回`util.Result`格式数据，不编写核心业务逻辑。按业务模块划分：
+#### 2.1 账号权限登录相关
+- AdminController：管理员账号CRUD、管理员信息管理接口
+- LoginController：系统登录、登出基础接口
+- AuthSimpleController：简易权限认证、登录状态校验接口
+- RoleController：角色管理、角色权限分配接口
+
+#### 2.2 学生业务管理
+- StudentController：学生基础信息增删改查、分页查询接口
+- SimpleProfileController：学生个人中心、资料修改、密码修改接口
+
+#### 2.3 图书分类&馆藏管理
+- BookController：图书书目基础信息管理接口
+- BookcopyController：图书馆藏副本入库、状态管理接口
+- BooktypeController：图书分类类型管理接口
+- CatalogueController：图书目录关联查询接口
+
+#### 2.4 借阅业务&记录
+- BorrowrecController：图书借阅、归还、借阅记录查询接口
+
+#### 2.5 借书证全生命周期业务
+- LibcardController：借书证基础信息列表查询接口
+- CardOperateController：借书证业务统一操作入口（办卡/挂失/补卡/销卡）
+- CardrecController：借书证操作流水记录查询接口
+
+#### 2.6 公告模块
+- NoticeController：系统公告发布、编辑、分页查询、详情接口
+
+#### 2.7 系统操作日志
+- OperationlogController：用户操作日志查询、行为追溯接口
+
+#### 2.8 缴费&借阅规则配置
+- PayrecController：逾期罚款生成、缴费操作、缴费记录查询接口
+- RuleconfigController：借阅规则参数配置、规则查询接口
 
 ### 3. dto 入参实体包
-专门接收前端提交的新增、编辑、业务操作请求参数，用于接口入参绑定
-- BookDTO：图书书目新增/编辑入参
-- BookCopyDTO：图书副本新增/编辑入参
-- CardApplyDTO：办理借书证入参
-- CardCancelDTO：注销借书证入参
-- CardLossDTO：借书证挂失入参
-- CardReissueDTO：借书证补办入参
-- PasswordDTO：密码修改入参
-- StudentUpdateDTO：学生信息修改入参
+数据传输入参对象，接收前端提交的业务操作参数，结构化封装请求参数，与数据库实体解耦
+- BookDTO：图书书目新增/编辑接口入参
+- BookCopyDTO：图书馆藏副本新增/编辑接口入参
+- CardApplyDTO：办理借书证业务入参
+- CardCancelDTO：注销借书证业务入参
+- CardLossDTO：借书证挂失操作入参
+- CardReissueDTO：补办借书证业务入参
+- PasswordDTO：管理员/学生修改密码入参
+- StudentUpdateDTO：学生个人信息更新入参
 
 ### 4. entity 数据库实体包
-与MySQL数据库表一一映射的持久化实体类，对应每张数据表
+与MySQL数据表一一映射的持久化实体类，字段和数据库表字段完全对应，用于MyBatis数据库映射操作
+实体列表：
 Admin、Student、Book、Bookcopy、Booktype、Borrowrec、Libcard、Cardrec、Notice、Operationlog、Payrec、Role、Ruleconfig
 
 ### 5. mapper 持久层（MyBatis）
-数据库操作接口层，每个实体对应1个Mapper接口，配套xml映射文件实现SQL
-- 接口文件（Mapper）：
+数据库交互层，每张数据表对应一个Mapper接口，搭配XML文件编写自定义复杂SQL，直接操作数据库
+#### 5.1 Mapper接口文件
 AdminMapper、StudentMapper、BookMapper、BookcopyMapper、BooktypeMapper、BorrowrecMapper、LibcardMapper、CardrecMapper、NoticeMapper、OperationlogMapper、PayrecMapper、RoleMapper、RuleconfigMapper
-- SQL映射文件：
-BookMapper.xml（图书自定义复杂查询SQL）
+
+#### 5.2 SQL映射XML文件
+- BookMapper.xml：图书模块多条件分页、模糊查询、多表联查自定义SQL
+- AdminMapper.xml：管理员角色关联查询、分页筛选、账号权限查询复杂SQL（新增）
 
 ### 6. service 业务逻辑层
-分为**顶层业务接口**与**impl接口实现类**，封装系统核心业务逻辑
-#### （1）顶层业务接口（service目录下）
+项目核心业务处理层，分为顶层业务接口与impl实现类，封装数据校验、事务控制、多表关联业务逻辑
+#### 6.1 顶层业务接口（service根目录）
+定义各模块标准业务方法，提供统一调用规范
 AdminService、StudentService、BookService、BookcopyService、BooktypeService、BorrowrecService、LibcardService、CardOperateService、CardrecService、NoticeService、OperationlogService、PayrecService、RoleService、RuleconfigService、SimpleProfileService
 
-#### （2）impl 接口实现子包（service.impl）
-实现对应Service接口，编写数据库交互、业务校验、事务逻辑
-- StudentServiceImpl：学生相关业务实现
-- LibcardServiceImpl：借书证基础信息业务实现
-- CardOperateServiceImpl：借书证操作（办卡/挂失/补卡/销卡）核心业务实现
-- BorrowrecServiceImpl：图书借阅、归还业务实现
-- PayrecServiceImpl：罚款缴费业务实现
-- SimpleProfileServiceImpl：学生个人中心业务实现
+#### 6.2 impl 接口实现子包（service.impl）
+实现对应Service接口，编写完整业务逻辑
+- StudentServiceImpl：学生信息增删改查、数据校验业务实现
+- LibcardServiceImpl：借书证基础信息查询、状态校验业务实现
+- CardOperateServiceImpl：办卡、挂失、补卡、销卡全流程核心业务实现
+- BorrowrecServiceImpl：图书借阅、归还、逾期判定、借阅记录生成业务实现
+- PayrecServiceImpl：逾期罚款计算、缴费状态更新、缴费记录保存业务实现
+- SimpleProfileServiceImpl：学生个人中心资料查询、密码修改业务实现
 
 ### 7. util 工具类包
-存放全局通用工具、拦截器、统一返回封装
-- Result：全局统一返回结果封装类，标准化接口返回格式（状态码、提示信息、业务数据）
-- LoginInterceptor：登录拦截器，全局校验请求登录状态，未登录接口拦截
+全局公共工具、拦截器组件，全项目通用，无业务耦合
+- Result：全局统一返回结果封装类，标准化接口返回格式（响应码、提示信息、业务数据、分页参数）
+- LoginInterceptor：全局登录拦截器，拦截未登录请求，校验用户登录状态
 
 ### 8. vo 出参视图实体包
-封装后端查询完成后返回给前端的页面展示数据，用于多表关联、组合数据返回
-- BookQueryVO：图书列表分页查询返回视图
-- BookBorrowVo：图书借阅详情组合出参，整合图书基础信息+借阅关联数据，用于借阅详情页
+页面视图返回对象，封装多表组合数据给前端，适配页面展示需求，不与数据库表强绑定
+- BookQueryVO：图书列表分页查询返回视图，封装图书基础信息、分类名称、馆藏数量
+- BookBorrowVo：图书借阅详情组合出参，整合图书信息+借阅关联数据，用于借阅详情页
 - BorrowCheckVo：借书资格校验出参，封装借书限制、校验结果、前端提示文案
-- BorrowVo：基础借阅记录列表返回对象
-- FineVo：逾期罚款缴费信息返回对象
-- StudentProfileVO：学生个人中心页面展示数据封装
+- BorrowVo：基础借阅记录列表展示对象
+- FineVo：逾期罚款缴费信息返回对象，包含罚款金额、逾期天数、缴费状态
+- StudentProfileVO：学生个人中心页面数据封装
+- AdminProfileVO：管理员个人中心专属出参，封装管理员账号、绑定角色、操作统计、权限信息（新增）
 
-## 三、resources 资源目录
+## 四、resources 资源配置目录
+存放项目配置文件、静态资源、页面模板
 1. static：静态资源存放目录（图片、静态文件等）
-2. templates：页面模板目录
-3. application.yml：SpringBoot全局配置文件（数据库、端口、MyBatis、跨域等配置）
-## 数据库表总览
-项目共13张业务数据表，完整支撑图书馆借阅、学生、管理员、罚款、公告、日志等全业务流程，使用Navicat可视化管理MySQL数据库。
+2. templates：服务端页面模板目录
+3. application.yml：SpringBoot全局配置文件，包含数据库连接、服务端口、MyBatis映射、日志、跨域、项目全局参数配置
 
 ### 1. cardrec 借阅卡操作记录表
 | 字段名 | 说明 |
